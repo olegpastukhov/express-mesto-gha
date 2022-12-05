@@ -2,6 +2,10 @@ const User = require('../models/user');
 
 const createUser = async (req, res) => {
   try {
+    const { name, about, avatar } = req.body;
+    if (!name || !about || !avatar) {
+      return res.status(400).json({ message: 'Required field is missing' });
+    }
     const user = await User.create(req.body);
     return res.status(201).json(user);
   } catch (e) {
@@ -27,8 +31,8 @@ const getUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await User.findById(id);
+    const { userId } = req.params;
+    const user = await User.findById(userId);
     if (user === null) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -36,6 +40,9 @@ const getUserById = async (req, res) => {
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
+    if (e.name === 'ValidationError') {
+      return res.status(400).json({ message: e.message });
+    }
     return res.status(500).json({ message: 'Error' });
   }
 };
@@ -51,7 +58,7 @@ const updateUser = async (req, res) => {
     if (user === null) {
       return res.status(404).json({ message: 'User not found' });
     }
-    return res.status(201).json(user);
+    return res.status(200).json(user);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);

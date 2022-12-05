@@ -38,6 +38,9 @@ const deleteCard = async (req, res) => {
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
+    if (e.name === 'ValidationError') {
+      return res.status(400).json({ message: e.message });
+    }
     return res.status(500).json({ message: 'Error' });
   }
 };

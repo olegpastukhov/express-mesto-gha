@@ -17,6 +17,8 @@ app.use(bodyParser.json());
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
+app.use('*', (req, res) => res.status(404).json({ message: 'Not found' }));
+
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 }, () => {
