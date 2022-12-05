@@ -7,6 +7,9 @@ const createUser = async (req, res) => {
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
+    if (e.name === 'ValidationError') {
+      return res.status(400).json({ message: e.message });
+    }
     return res.status(500).json({ message: 'Error' });
   }
 };
@@ -40,18 +43,21 @@ const getUserById = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { name, about } = req.body;
-    if (!name || !about) {
-      return res.status(400).json({ message: 'Переданы некорректные данные' });
-    }
     // eslint-disable-next-line no-underscore-dangle
     const user = await User.findByIdAndUpdate(req.user._id, {
       name,
       about,
     });
+    if (user === null) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     return res.status(201).json(user);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
+    if (e.name === 'ValidationError') {
+      return res.status(400).json({ message: e.message });
+    }
     return res.status(500).json({ message: 'Error' });
   }
 };
@@ -61,10 +67,16 @@ const updateAvatar = async (req, res) => {
     const { avatar } = req.body;
     // eslint-disable-next-line no-underscore-dangle
     const user = await User.findByIdAndUpdate(req.user._id, { avatar });
-    return res.status(200).json(user);
+    if (user === null) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.status(200).json(avatar);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
+    if (e.name === 'ValidationError') {
+      return res.status(400).json({ message: 'ValidationError' });
+    }
     return res.status(500).json({ message: 'Error' });
   }
 };
