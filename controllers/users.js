@@ -5,6 +5,7 @@ const createUser = async (req, res) => {
     const user = await User.create(req.body);
     return res.status(201).json(user);
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
     return res.status(500).json({ message: 'Error' });
   }
@@ -15,23 +16,25 @@ const getUsers = async (req, res) => {
     const users = await User.find({});
     return res.status(200).json(users);
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
     return res.status(500).json({ message: 'Error' });
   }
-}
+};
 
 const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
     if (user === null) {
-      return res.status(404).json({ message: 'User not found' })
+      return res.status(404).json({ message: 'User not found' });
     }
+    return res.status(200).json(user);
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
     return res.status(500).json({ message: 'Error' });
   }
-
 };
 
 const updateUser = async (req, res) => {
@@ -47,6 +50,7 @@ const updateUser = async (req, res) => {
     });
     return res.status(201).json(user);
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
     return res.status(500).json({ message: 'Error' });
   }
@@ -59,6 +63,7 @@ const updateAvatar = async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user._id, { avatar });
     return res.status(200).json(user);
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
     return res.status(500).json({ message: 'Error' });
   }
