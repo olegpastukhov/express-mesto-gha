@@ -2,7 +2,6 @@ const User = require('../models/user');
 
 const createUser = async (req, res) => {
   try {
-    // const { name, about, avatar } = req.body;
     const user = await User.create(req.body);
     return res.status(201).json(user);
   } catch (e) {
