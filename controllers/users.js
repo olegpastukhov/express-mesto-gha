@@ -2,10 +2,12 @@ const User = require('../models/user');
 
 const createUser = async (req, res) => {
   try {
+    // const { name, about, avatar } = req.body;
     const user = await User.create(req.body);
     return res.status(201).json(user);
   } catch (e) {
-    if (e.name === 'ValidationError') {
+    console.error(e);
+    if (e.name === 'ValidationError' || e.name === 'ObjectParameterError') {
       return res.status(400).json({ message: e.message });
     }
     return res.status(500).json({ message: 'Error' });
