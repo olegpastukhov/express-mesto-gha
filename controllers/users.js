@@ -6,8 +6,7 @@ const createUser = async (req, res) => {
     const user = await User.create(req.body);
     return res.status(201).json(user);
   } catch (e) {
-    console.error(e);
-    if (e.name === 'ValidationError' || e.name === 'ObjectParameterError') {
+    if (e.name === 'ValidationError') {
       return res.status(400).json({ message: e.message });
     }
     return res.status(500).json({ message: 'Error' });
