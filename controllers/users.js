@@ -33,15 +33,15 @@ const getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
     const user = await User.findById(userId);
-    if (user === null) {
+    if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
     return res.status(200).json(user);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
-    if (e.name === 'ValidationError') {
-      return res.status(400).json({ message: e.message });
+    if (e.name === 'CastError') {
+      return res.status(400).json({ message: 'UserId is not valid' });
     }
     return res.status(500).json({ message: 'Error' });
   }
@@ -51,14 +51,16 @@ const updateUser = async (req, res) => {
   try {
     const { name, about } = req.body;
     // eslint-disable-next-line no-underscore-dangle
-    const user = await User.findByIdAndUpdate(req.user._id, {
-      name,
-      about,
-    });
+    const user = await User.findByIdAndUpdate(
+      // eslint-disable-next-line no-underscore-dangle
+      req.user._id,
+      { name, about },
+      { new: true, runValidators: true },
+    );
     if (user === null) {
       return res.status(404).json({ message: 'User not found' });
     }
-    return res.status(200).json(user);
+    return res.status(200).send(user);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
@@ -73,11 +75,16 @@ const updateAvatar = async (req, res) => {
   try {
     const { avatar } = req.body;
     // eslint-disable-next-line no-underscore-dangle
-    const user = await User.findByIdAndUpdate(req.user._id, { avatar });
+    const user = await User.findByIdAndUpdate(
+      // eslint-disable-next-line no-underscore-dangle
+      req.user._id,
+      { avatar },
+      { new: true, runValidators: true },
+    );
     if (user === null) {
       return res.status(404).json({ message: 'User not found' });
     }
-    return res.status(200).json(avatar);
+    return res.status(200).json({ avatar });
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);

@@ -38,8 +38,8 @@ const deleteCard = async (req, res) => {
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
-    if (e.name === 'ValidationError') {
-      return res.status(400).json({ message: e.message });
+    if (e.name === 'CastError') {
+      return res.status(400).json({ message: 'CardId is not valid' });
     }
     return res.status(500).json({ message: 'Error' });
   }
@@ -53,15 +53,15 @@ const likeCard = async (req, res) => {
       { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
       { new: true },
     );
-    if (card === null) {
+    if (!card) {
       return res.status(404).json({ message: 'Card not found' });
     }
     return res.status(200).json(card);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
-    if (e.name === 'ValidationError') {
-      return res.status(400).json({ message: e.message });
+    if (e.name === 'CastError') {
+      return res.status(400).json({ message: 'CardId is not valid' });
     }
     return res.status(500).json({ message: 'Error' });
   }
@@ -82,8 +82,8 @@ const dislikeCard = async (req, res) => {
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
-    if (e.name === 'ValidationError') {
-      return res.status(400).json({ message: e.message });
+    if (e.name === 'CastError') {
+      return res.status(400).json({ message: 'CardId is not valid' });
     }
     return res.status(500).json({ message: 'Error' });
   }
