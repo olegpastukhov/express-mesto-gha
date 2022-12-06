@@ -7,8 +7,6 @@ const createCard = async (req, res) => {
     const card = await Card.create({ name, link, owner: req.user._id });
     return res.status(201).json(card);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     if (e.name === 'ValidationError') {
       return res.status(400).json({ message: e.message });
     }
@@ -21,8 +19,6 @@ const getCards = async (req, res) => {
     const cards = await Card.find({});
     return res.status(200).json(cards);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     return res.status(500).json({ message: 'Error' });
   }
 };
@@ -36,8 +32,6 @@ const deleteCard = async (req, res) => {
     }
     return res.status(200).json(deletedCard);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     if (e.name === 'CastError') {
       return res.status(400).json({ message: 'CardId is not valid' });
     }
@@ -58,8 +52,6 @@ const likeCard = async (req, res) => {
     }
     return res.status(200).json(card);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     if (e.name === 'CastError') {
       return res.status(400).json({ message: 'CardId is not valid' });
     }
@@ -80,8 +72,6 @@ const dislikeCard = async (req, res) => {
     }
     return res.status(200).json(card);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     if (e.name === 'CastError') {
       return res.status(400).json({ message: 'CardId is not valid' });
     }

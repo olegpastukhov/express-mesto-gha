@@ -2,15 +2,9 @@ const User = require('../models/user');
 
 const createUser = async (req, res) => {
   try {
-    const { name, about, avatar } = req.body;
-    if (!name || !about || !avatar) {
-      return res.status(400).json({ message: 'Required field is missing' });
-    }
     const user = await User.create(req.body);
     return res.status(201).json(user);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     if (e.name === 'ValidationError') {
       return res.status(400).json({ message: e.message });
     }
@@ -23,8 +17,6 @@ const getUsers = async (req, res) => {
     const users = await User.find({});
     return res.status(200).json(users);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     return res.status(500).json({ message: 'Error' });
   }
 };
@@ -38,8 +30,6 @@ const getUserById = async (req, res) => {
     }
     return res.status(200).json(user);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     if (e.name === 'CastError') {
       return res.status(400).json({ message: 'UserId is not valid' });
     }
@@ -62,8 +52,6 @@ const updateUser = async (req, res) => {
     }
     return res.status(200).send(user);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     if (e.name === 'ValidationError') {
       return res.status(400).json({ message: e.message });
     }
@@ -86,8 +74,6 @@ const updateAvatar = async (req, res) => {
     }
     return res.status(200).json({ avatar });
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     if (e.name === 'ValidationError') {
       return res.status(400).json({ message: 'ValidationError' });
     }
