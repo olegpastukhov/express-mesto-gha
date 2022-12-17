@@ -1,9 +1,54 @@
+// eslint-disable-next-line import/no-unresolved
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const createUser = async (req, res) => {
+// eslint-disable-next-line consistent-return
+const login = async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const user = await User.create(req.body);
-    return res.status(201).json(user);
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    try {
+      const result = await bcrypt.compare(password, user.password);
+      if (result) {
+        const payload = { _id: user._id };
+        const tokenKey = 'secret_token_key';
+        const token = jwt.sign(payload, tokenKey);
+        return res.status(200).json({ token });
+      }
+      return res.status(401).json({ message: 'Invalid email or password' });
+    } catch (e) {
+      return res.status(500).json({ message: 'Error' });
+    }
+  } catch (e) {
+    return res.status(500).json({ message: 'Error' });
+  }
+};
+
+const createUser = async (req, res) => {
+  const {
+    email,
+    password,
+    name,
+    about,
+    avatar,
+  } = req.body;
+  try {
+    if (!email || !password) {
+      return res.status(500).json({ message: 'Неправильный логин или пароль.' });
+    }
+    const hash = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      email,
+      name,
+      about,
+      avatar,
+      password: hash,
+    });
+    return res.status(201).json({ _id: user._id });
   } catch (e) {
     if (e.name === 'ValidationError') {
       return res.status(400).json({ message: e.message });
@@ -87,4 +132,5 @@ module.exports = {
   getUserById,
   updateUser,
   updateAvatar,
+  login,
 };

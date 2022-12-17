@@ -1,21 +1,18 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { login, createUser } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '638cde9056d5d60096c5ecc2',
-  };
-
-  next();
-});
-
 app.use(bodyParser.json());
 app.use('/', require('./routes/users'));
+
 app.use('/', require('./routes/cards'));
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use('*', (req, res) => res.status(404).json({ message: 'Not found' }));
 
