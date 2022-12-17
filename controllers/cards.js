@@ -27,7 +27,7 @@ const deleteCard = async (req, res) => {
   const { _id } = req.user;
   const { cardId } = req.params;
   try {
-    const card = await Card.findOne(cardId);
+    const card = await Card.findById(cardId);
     if (!card) {
       return res.status(404).json({ message: 'Card not found' });
     }

@@ -22,11 +22,14 @@ const login = async (req, res) => {
         const token = jwt.sign(payload, tokenKey, { expiresIn: '7d' });
         return res.cookie('token', token).status(200).json({ token });
       }
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(400).json({ message: 'Invalid email or password' });
     } catch (e) {
       return res.status(500).json({ message: 'Error' });
     }
   } catch (e) {
+    if (e.name === 'ValidationError') {
+      return res.status(400).json({ message: e.message });
+    }
     return res.status(500).json({ message: 'Error' });
   }
 };
@@ -55,7 +58,13 @@ const createUser = async (req, res) => {
       avatar,
       password: hash,
     });
-    return res.status(201).json(user);
+    return res.status(201).json({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: user._id,
+      email: user.email,
+    });
   } catch (e) {
     if (e.name === 'ValidationError') {
       return res.status(400).json({ message: e.message });
