@@ -18,9 +18,9 @@ const login = async (req, res) => {
       const result = await bcrypt.compare(password, user.password);
       if (result) {
         const payload = { _id: user._id };
-        const tokenKey = 'secret_token_key';
-        const token = jwt.sign(payload, tokenKey);
-        return res.status(200).json({ token });
+        const tokenKey = 'some-secret-key';
+        const token = jwt.sign(payload, tokenKey, { expiresIn: '7d' });
+        return res.cookie('token', token).status(200).json({ token });
       }
       return res.status(400).json({ message: 'Invalid email or password' });
     } catch (e) {
