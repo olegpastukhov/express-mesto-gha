@@ -12,7 +12,7 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
     try {
       const result = await bcrypt.compare(password, user.password);
@@ -22,7 +22,7 @@ const login = async (req, res) => {
         const token = jwt.sign(payload, tokenKey, { expiresIn: '7d' });
         return res.cookie('token', token).status(200).json({ token });
       }
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     } catch (e) {
       return res.status(500).json({ message: 'Error' });
     }
@@ -60,6 +60,19 @@ const createUser = async (req, res) => {
     if (e.name === 'ValidationError') {
       return res.status(400).json({ message: e.message });
     }
+    return res.status(500).json({ message: 'Error' });
+  }
+};
+
+const getCurrentUser = async (req, res) => {
+  const { _id } = req.user;
+  try {
+    const user = await User.findById(_id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.status(200).json(user);
+  } catch (e) {
     return res.status(500).json({ message: 'Error' });
   }
 };
@@ -136,6 +149,7 @@ const updateAvatar = async (req, res) => {
 module.exports = {
   getUsers,
   createUser,
+  getCurrentUser,
   getUserById,
   updateUser,
   updateAvatar,

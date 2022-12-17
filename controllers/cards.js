@@ -24,8 +24,16 @@ const getCards = async (req, res) => {
 };
 
 const deleteCard = async (req, res) => {
+  const { _id } = req.user;
+  const { cardId } = req.params;
   try {
-    const { cardId } = req.params;
+    const card = await Card.findOne(cardId);
+    if (!card) {
+      return res.status(404).json({ message: 'Card not found' });
+    }
+    if (card.owner.valueOf() !== _id) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
     const deletedCard = await Card.findByIdAndRemove(cardId);
     if (!deletedCard) {
       return res.status(404).json({ message: 'Card not found' });
