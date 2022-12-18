@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const errorHandler = require('./middlewares/errorHandler');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundError');
 const auth = require('./middlewares/auth');
@@ -27,10 +28,7 @@ app.use('*', (req, res, next) => {
 });
 
 app.use(errors());
-
-app.use((err, req, res) => {
-  res.status(500).send({ message: 'Server Error' });
-});
+app.use(errorHandler);
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
