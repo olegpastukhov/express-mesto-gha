@@ -16,8 +16,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', signUp, login);
-app.post('/signup', signIn, createUser);
+app.post('/signup', signUp, createUser);
+app.post('/signin', signIn, login);
 
 app.use(auth);
 app.use('/', require('./routes/users'));

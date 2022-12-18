@@ -11,9 +11,9 @@ const login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     const user = await User.findUserByCredentials({ email, password });
-    if (!email || !password) {
-      next(new BadRequestError('Invalid email or password'));
-    }
+    // if (!email || !password) {
+    //   next(new BadRequestError('Invalid email or password'));
+    // }
     // try {
     //   const result = await bcrypt.compare(password, user.password);
     //   if (result) {
@@ -43,9 +43,9 @@ const createUser = async (req, res, next) => {
     about,
     avatar,
   } = req.body;
-  if (!email || !password) {
-    next(new BadRequestError('Invalid email or password'));
-  }
+  // if (!email || !password) {
+  //   next(new BadRequestError('Invalid email or password'));
+  // }
   try {
     const emailCheck = await User.findOne({ email });
     if (emailCheck) {

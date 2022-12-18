@@ -4,11 +4,13 @@ const ForbiddenError = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
 
 const createCard = async (req, res, next) => {
+  const { name, link } = req.body;
   try {
-    const { name, link } = req.body;
     // eslint-disable-next-line no-underscore-dangle
     const card = await Card.create({ name, link, owner: req.user._id });
-    return res.status(201).json(card);
+    if (card) {
+      return res.status(201).json(card);
+    }
   } catch (e) {
     if (e.name === 'ValidationError') {
       return next(new BadRequestError('Переданы неверные данные.'));
