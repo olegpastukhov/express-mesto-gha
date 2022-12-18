@@ -27,9 +27,6 @@ const getCards = async (req, res, next) => {
   } catch (e) {
     return next(e);
   }
-  //  {
-  //   return res.status(500).json({ message: 'Error' });
-  // }
 };
 
 const deleteCard = async (req, res, next) => {
@@ -48,12 +45,6 @@ const deleteCard = async (req, res, next) => {
   } catch (e) {
     return next(e);
   }
-  // {
-  //   if (e.name === 'CastError') {
-  //     return res.status(400).json({ message: 'CardId is not valid' });
-  //   }
-  //   return res.status(500).json({ message: 'Error' });
-  // }
 };
 
 const likeCard = async (req, res, next) => {
@@ -71,12 +62,6 @@ const likeCard = async (req, res, next) => {
   } catch (e) {
     return next(e);
   }
-  // {
-  //   if (e.name === 'CastError') {
-  //     return res.status(400).json({ message: 'CardId is not valid' });
-  //   }
-  //   return res.status(500).json({ message: 'Error' });
-  // }
 };
 
 const dislikeCard = async (req, res, next) => {
@@ -94,12 +79,6 @@ const dislikeCard = async (req, res, next) => {
   } catch (e) {
     return next(e);
   }
-  // {
-  //   if (e.name === 'CastError') {
-  //     return res.status(400).json({ message: 'CardId is not valid' });
-  //   }
-  //   return res.status(500).json({ message: 'Error' });
-  // }
 };
 
 module.exports = {

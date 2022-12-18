@@ -18,21 +18,11 @@ const login = async (req, res, next) => {
     if (!user) {
       next(new UnauthorizedError('User not found'));
     }
-    // try {
-    //   const result = await bcrypt.compare(password, user.password);
-    //   if (result) {
     const payload = { _id: user._id };
     const tokenKey = 'some-secret-key';
     const token = jwt.sign(payload, tokenKey, { expiresIn: '7d' });
     return res.status(200).json({ token });
-    //  return res.status(400).json({ message: 'Invalid email or password' });
-    // } catch (e) {
-    //   return res.status(500).json({ message: 'Error' });
-    // }
   } catch (e) {
-    // if (e.name === 'ValidationError') {
-    //   return res.status(400).json({ message: e.message });
-    // }
     return next(e);
   }
 };
@@ -107,10 +97,6 @@ const getUserById = async (req, res, next) => {
     }
     return res.status(200).json(user);
   } catch (e) {
-    // if (e.name === 'CastError') {
-    //   return res.status(400).json({ message: 'UserId is not valid' });
-    // }
-    // return res.status(500).json({ message: 'Error' });
     return next(e);
   }
 };
