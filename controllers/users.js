@@ -5,24 +5,26 @@ const User = require('../models/user');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 // eslint-disable-next-line consistent-return
 const login = async (req, res, next) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    next(new BadRequestError('Invalid email or password'));
+  }
   try {
-    const user = await User.findUserByCredentials({ email, password });
-    // if (!email || !password) {
-    //   next(new BadRequestError('Invalid email or password'));
-    // }
+    const user = await User.findUserByCredentials(email, password);
+    if (!user) {
+      next(new UnauthorizedError('User not found'));
+    }
     // try {
     //   const result = await bcrypt.compare(password, user.password);
     //   if (result) {
-    if (user) {
-      const payload = { _id: user._id };
-      const tokenKey = 'some-secret-key';
-      const token = jwt.sign(payload, tokenKey, { expiresIn: '7d' });
-      return res.cookie('token', token).status(200).json({ token });
-    }
+    const payload = { _id: user._id };
+    const tokenKey = 'some-secret-key';
+    const token = jwt.sign(payload, tokenKey, { expiresIn: '7d' });
+    return res.status(200).json({ token });
     //  return res.status(400).json({ message: 'Invalid email or password' });
     // } catch (e) {
     //   return res.status(500).json({ message: 'Error' });

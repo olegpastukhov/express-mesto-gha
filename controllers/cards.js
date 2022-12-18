@@ -3,6 +3,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
 
+// eslint-disable-next-line consistent-return
 const createCard = async (req, res, next) => {
   const { name, link } = req.body;
   try {
