@@ -45,9 +45,9 @@ const createUser = async (req, res, next) => {
     about,
     avatar,
   } = req.body;
-  // if (!email || !password) {
-  //   next(new BadRequestError('Invalid email or password'));
-  // }
+  if (!email || !password) {
+    next(new BadRequestError('Invalid email or password'));
+  }
   try {
     const emailCheck = await User.findOne({ email });
     if (emailCheck) {

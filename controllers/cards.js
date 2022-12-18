@@ -14,7 +14,7 @@ const createCard = async (req, res, next) => {
     }
   } catch (e) {
     if (e.name === 'ValidationError') {
-      return next(new BadRequestError('Переданы неверные данные.'));
+      return next(new BadRequestError('Invalid req data'));
     }
     return next(e);
   }
