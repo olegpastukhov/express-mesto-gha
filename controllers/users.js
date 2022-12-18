@@ -2,39 +2,40 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
+const NotFoundError = require('../errors/NotFoundError');
 
 // eslint-disable-next-line consistent-return
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Invalid email or password' });
-  }
   try {
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+    const user = await User.findUserByCredentials({ email, password });
+    if (!email || !password) {
+      next(new BadRequestError('Invalid email or password'));
     }
-    try {
-      const result = await bcrypt.compare(password, user.password);
-      if (result) {
-        const payload = { _id: user._id };
-        const tokenKey = 'some-secret-key';
-        const token = jwt.sign(payload, tokenKey, { expiresIn: '7d' });
-        return res.cookie('token', token).status(200).json({ token });
-      }
-      return res.status(400).json({ message: 'Invalid email or password' });
-    } catch (e) {
-      return res.status(500).json({ message: 'Error' });
+    // try {
+    //   const result = await bcrypt.compare(password, user.password);
+    //   if (result) {
+    if (user) {
+      const payload = { _id: user._id };
+      const tokenKey = 'some-secret-key';
+      const token = jwt.sign(payload, tokenKey, { expiresIn: '7d' });
+      return res.cookie('token', token).status(200).json({ token });
     }
+    //  return res.status(400).json({ message: 'Invalid email or password' });
+    // } catch (e) {
+    //   return res.status(500).json({ message: 'Error' });
+    // }
   } catch (e) {
-    if (e.name === 'ValidationError') {
-      return res.status(400).json({ message: e.message });
-    }
-    return res.status(500).json({ message: 'Error' });
+    // if (e.name === 'ValidationError') {
+    //   return res.status(400).json({ message: e.message });
+    // }
+    return next(e);
   }
 };
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   const {
     email,
     password,
@@ -42,13 +43,13 @@ const createUser = async (req, res) => {
     about,
     avatar,
   } = req.body;
+  if (!email || !password) {
+    next(new BadRequestError('Invalid email or password'));
+  }
   try {
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Invalid email or password' });
-    }
     const emailCheck = await User.findOne({ email });
     if (emailCheck) {
-      return res.status(409).json({ message: 'User with this email already exists' });
+      next(new ConflictError(`User with ${email} already exists`));
     }
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
@@ -67,53 +68,54 @@ const createUser = async (req, res) => {
     });
   } catch (e) {
     if (e.name === 'ValidationError') {
-      return res.status(400).json({ message: e.message });
+      next(new BadRequestError('Invalid user data or avatars`s URL'));
     }
-    return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
 };
 
-const getCurrentUser = async (req, res) => {
+const getCurrentUser = async (req, res, next) => {
   const { _id } = req.user;
   try {
     const user = await User.findById(_id);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return next(new NotFoundError('User not found'));
     }
     return res.status(200).json(user);
   } catch (e) {
-    return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
 };
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     return res.status(200).json(users);
   } catch (e) {
-    return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
+  const { userId } = req.params;
   try {
-    const { userId } = req.params;
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return next(new NotFoundError('User not found'));
     }
     return res.status(200).json(user);
   } catch (e) {
-    if (e.name === 'CastError') {
-      return res.status(400).json({ message: 'UserId is not valid' });
-    }
-    return res.status(500).json({ message: 'Error' });
+    // if (e.name === 'CastError') {
+    //   return res.status(400).json({ message: 'UserId is not valid' });
+    // }
+    // return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
+  const { name, about } = req.body;
   try {
-    const { name, about } = req.body;
     // eslint-disable-next-line no-underscore-dangle
     const user = await User.findByIdAndUpdate(
       // eslint-disable-next-line no-underscore-dangle
@@ -121,19 +123,19 @@ const updateUser = async (req, res) => {
       { name, about },
       { new: true, runValidators: true },
     );
-    if (user === null) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      return next(new NotFoundError('User not found'));
     }
     return res.status(200).send(user);
   } catch (e) {
     if (e.name === 'ValidationError') {
       return res.status(400).json({ message: e.message });
     }
-    return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
 };
 
-const updateAvatar = async (req, res) => {
+const updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
     // eslint-disable-next-line no-underscore-dangle
@@ -143,15 +145,15 @@ const updateAvatar = async (req, res) => {
       { avatar },
       { new: true, runValidators: true },
     );
-    if (user === null) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      return next(new NotFoundError('User not found'));
     }
     return res.status(200).json({ avatar });
   } catch (e) {
     if (e.name === 'ValidationError') {
-      return res.status(400).json({ message: 'ValidationError' });
+      next(new BadRequestError('Неверная ссылка'));
     }
-    return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
 };
 

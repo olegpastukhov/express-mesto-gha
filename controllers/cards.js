@@ -3,7 +3,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
 
-const createCard = async (req, res) => {
+const createCard = async (req, res, next) => {
   try {
     const { name, link } = req.body;
     // eslint-disable-next-line no-underscore-dangle
@@ -11,46 +11,49 @@ const createCard = async (req, res) => {
     return res.status(201).json(card);
   } catch (e) {
     if (e.name === 'ValidationError') {
-      return res.status(400).json({ message: e.message });
+      return next(new BadRequestError('Переданы неверные данные.'));
     }
-    return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
 };
 
-const getCards = async (req, res) => {
+const getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
     return res.status(200).json(cards);
   } catch (e) {
-    return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
+  //  {
+  //   return res.status(500).json({ message: 'Error' });
+  // }
 };
 
-const deleteCard = async (req, res) => {
+const deleteCard = async (req, res, next) => {
   const { _id } = req.user;
   const { cardId } = req.params;
   try {
     const card = await Card.findById(cardId);
     if (!card) {
-      return res.status(404).json({ message: 'Card not found' });
+      throw new NotFoundError('Card not found');
     }
     if (card.owner.valueOf() !== _id) {
-      return res.status(403).json({ message: 'Forbidden' });
+      throw new ForbiddenError('Forbidden');
     }
     const deletedCard = await Card.findByIdAndRemove(cardId);
-    if (!deletedCard) {
-      return res.status(404).json({ message: 'Card not found' });
-    }
     return res.status(200).json(deletedCard);
   } catch (e) {
-    if (e.name === 'CastError') {
-      return res.status(400).json({ message: 'CardId is not valid' });
-    }
-    return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
+  // {
+  //   if (e.name === 'CastError') {
+  //     return res.status(400).json({ message: 'CardId is not valid' });
+  //   }
+  //   return res.status(500).json({ message: 'Error' });
+  // }
 };
 
-const likeCard = async (req, res) => {
+const likeCard = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -59,18 +62,21 @@ const likeCard = async (req, res) => {
       { new: true },
     );
     if (!card) {
-      return res.status(404).json({ message: 'Card not found' });
+      return next(new NotFoundError('Card not found. Can`t set like'));
     }
     return res.status(200).json(card);
   } catch (e) {
-    if (e.name === 'CastError') {
-      return res.status(400).json({ message: 'CardId is not valid' });
-    }
-    return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
+  // {
+  //   if (e.name === 'CastError') {
+  //     return res.status(400).json({ message: 'CardId is not valid' });
+  //   }
+  //   return res.status(500).json({ message: 'Error' });
+  // }
 };
 
-const dislikeCard = async (req, res) => {
+const dislikeCard = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -78,16 +84,19 @@ const dislikeCard = async (req, res) => {
       { $pull: { likes: req.user._id } }, // убрать _id из массива
       { new: true },
     );
-    if (card === null) {
-      return res.status(404).json({ message: 'Card not found' });
+    if (!card) {
+      return next(new NotFoundError('Card not found. Can`t set dislike'));
     }
     return res.status(200).json(card);
   } catch (e) {
-    if (e.name === 'CastError') {
-      return res.status(400).json({ message: 'CardId is not valid' });
-    }
-    return res.status(500).json({ message: 'Error' });
+    return next(e);
   }
+  // {
+  //   if (e.name === 'CastError') {
+  //     return res.status(400).json({ message: 'CardId is not valid' });
+  //   }
+  //   return res.status(500).json({ message: 'Error' });
+  // }
 };
 
 module.exports = {
