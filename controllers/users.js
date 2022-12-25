@@ -7,6 +7,8 @@ const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 // eslint-disable-next-line consistent-return
 const login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -20,7 +22,13 @@ const login = async (req, res, next) => {
     }
     const payload = { _id: user._id };
     const tokenKey = 'some-secret-key';
-    const token = jwt.sign(payload, tokenKey, { expiresIn: '7d' });
+    const token = jwt.sign(
+      { payload },
+      NODE_ENV === 'production' ? JWT_SECRET : tokenKey,
+      {
+        expiresIn: '7d',
+      },
+    );
     return res.status(200).json({ token });
   } catch (e) {
     return next(e);
