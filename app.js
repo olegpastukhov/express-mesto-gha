@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const helmet = require('helmet');
 const errorHandler = require('./middlewares/errorHandler');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundError');
@@ -34,6 +35,7 @@ app.use('*', (req, res, next) => {
 });
 
 app.use(errorLogger); // подключаем логгер ошибок
+app.use(helmet());
 
 app.use(errors());
 app.use(errorHandler);
