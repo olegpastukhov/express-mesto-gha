@@ -20,14 +20,15 @@ const login = async (req, res, next) => {
     if (!user) {
       next(new UnauthorizedError('User not found'));
     }
+
+    const payload = { _id: user._id };
+    const tokenKey = JWT_SECRET;
     const token = jwt.sign(
-      { _id: user._id },
-      NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
-      {
-        expiresIn: '7d',
-      },
+      payload,
+      NODE_ENV === 'production' ? tokenKey : 'some-secret-key',
+      { expiresIn: '7d' },
     );
-    return res.send({ token });
+    return res.status(200).json({ token });
   } catch (e) {
     return next(e);
   }
