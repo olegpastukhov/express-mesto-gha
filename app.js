@@ -24,6 +24,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors);
 
 app.use(requestLogger); // подключаем логгер запросов
+app.use(helmet());
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.post('/signup', signUp, createUser);
 app.post('/signin', signIn, login);
@@ -37,13 +44,13 @@ app.use('*', (req, res, next) => {
 });
 
 app.use(errorLogger); // подключаем логгер ошибок
-app.use(helmet());
 
 app.use(errors());
 app.use(errorHandler);
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
+  useUnifiedTopology: true,
 }, () => {
   // eslint-disable-next-line no-console
   console.log('Connected to MongoDB!');
