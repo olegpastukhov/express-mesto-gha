@@ -30,7 +30,7 @@ const login = async (req, res, next) => {
       NODE_ENV === 'production' ? tokenKey : 'some-secret-key',
       { expiresIn: '7d' },
     );
-    return res.status(200).json({ token });
+    return res.send({ token });
   } catch (e) {
     return next(e);
   }
