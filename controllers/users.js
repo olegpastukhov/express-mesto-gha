@@ -23,12 +23,17 @@ const login = async (req, res, next) => {
       next(new UnauthorizedError('User not found'));
     }
 
-    const payload = { _id: user._id };
-    const tokenKey = JWT_SECRET;
+    // const payload = { _id: user._id };
+    // const tokenKey = JWT_SECRET;
+    // const token = jwt.sign(
+    //   payload,
+    //   NODE_ENV === 'production' ? tokenKey : 'some-secret-key',
+    //   { expiresIn: '7d' },
+    // );
+
     const token = jwt.sign(
-      payload,
-      NODE_ENV === 'production' ? tokenKey : 'some-secret-key',
-      { expiresIn: '7d' },
+      { _id: user._id },
+      NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
     );
     return res.send({ token });
   } catch (e) {
