@@ -58,9 +58,14 @@ const login = (req, res, next) => {
           expiresIn: '7d',
         },
       );
-
+      res.cookie('jwt', token, {
+        maxAge: 3600000,
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+      });
       // вернём токен
-      return res.send({ token });
+      res.send({ token });
     })
     .catch(next);
 };
@@ -107,11 +112,12 @@ const createUser = async (req, res, next) => {
 const getCurrentUser = async (req, res, next) => {
   const { _id } = req.user;
   try {
-    const user = await User.findById(_id);
+    const user = await User.findById({ _id });
     if (!user) {
       return next(new NotFoundError('User not found'));
     }
-    return res.status(200).json(user);
+    // return res.status(200).json(user);
+    return res.status(200).send(user);
   } catch (e) {
     return next(e);
   }
