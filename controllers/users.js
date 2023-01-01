@@ -44,6 +44,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
+    // eslint-disable-next-line consistent-return
     .then((user) => {
       // проверим существует ли такой email или пароль
       if (!user || !password) {
