@@ -161,7 +161,7 @@ const updateUser = async (req, res, next) => {
       { new: true, runValidators: true },
     );
     if (!user) {
-      return next(new NotFoundError('User not found'));
+      return next(new NotFoundError('updateUser User not found'));
     }
     return res.status(200).send(user);
   } catch (e) {
@@ -183,7 +183,7 @@ const updateAvatar = async (req, res, next) => {
       { new: true, runValidators: true },
     );
     if (!user) {
-      return next(new NotFoundError('User not found'));
+      return next(new NotFoundError('updateAvatar User not found'));
     }
     return res.status(200).json({ avatar });
   } catch (e) {
