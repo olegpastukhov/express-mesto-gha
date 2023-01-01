@@ -111,15 +111,15 @@ const createUser = async (req, res, next) => {
 };
 
 const getCurrentUser = async (req, res, next) => {
-  const { _id } = req.user;
+  const userId = req.user._id;
   // eslint-disable-next-line no-constant-condition
-  if (!{ _id }) {
+  if (!userId) {
     next(new BadRequestError('Invalid id'));
   }
   try {
-    const user = await User.findById({ _id });
+    const user = await User.findById(userId);
     if (!user) {
-      return next(new NotFoundError('User not found'));
+      return next(new NotFoundError(`User with this ${userId} not found`));
     }
     // return res.status(200).json(user);
     return res.status(200).send(user);
