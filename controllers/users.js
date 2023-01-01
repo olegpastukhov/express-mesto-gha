@@ -115,7 +115,7 @@ const getCurrentUser = async (req, res, next) => {
   // eslint-disable-next-line no-constant-condition
   if (!{ _id }) {
     next(new BadRequestError('Invalid id'));
-  };
+  }
   try {
     const user = await User.findById({ _id });
     if (!user) {
