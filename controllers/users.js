@@ -112,6 +112,7 @@ const createUser = async (req, res, next) => {
 
 const getCurrentUser = async (req, res, next) => {
   const { _id } = req.user;
+  console.log({ _id });
   try {
     const user = await User.findById({ _id });
     if (!user) {
