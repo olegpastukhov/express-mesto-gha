@@ -12,34 +12,57 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 // eslint-disable-next-line consistent-return
-const login = async (req, res, next) => {
+// const login = async (req, res, next) => {
+//   const { email, password } = req.body;
+//   if (!email || !password) {
+//     next(new BadRequestError('Invalid email or password'));
+//   }
+//   try {
+//     const user = await User.findUserByCredentials(email, password);
+//     if (!user) {
+//       next(new UnauthorizedError('User not found'));
+//     }
+
+// const payload = { _id: user._id };
+// const tokenKey = JWT_SECRET;
+// const token = jwt.sign(
+//   payload,
+//   NODE_ENV === 'production' ? tokenKey : 'some-secret-key',
+//   { expiresIn: '7d' },
+// );
+
+//     const token = jwt.sign(
+//       { _id: user._id },
+//       NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
+//       { expiresIn: '7d' },
+//     );
+//     res.send({ token });
+//   } catch (e) {
+//     return next(e);
+//   }
+// };
+const login = (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    next(new BadRequestError('Invalid email or password'));
-  }
-  try {
-    const user = await User.findUserByCredentials(email, password);
-    if (!user) {
-      next(new UnauthorizedError('User not found'));
-    }
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      // проверим существует ли такой email или пароль
+      if (!user || !password) {
+        return next(new BadRequestError('Неверный email или пароль.'));
+      }
 
-    // const payload = { _id: user._id };
-    // const tokenKey = JWT_SECRET;
-    // const token = jwt.sign(
-    //   payload,
-    //   NODE_ENV === 'production' ? tokenKey : 'some-secret-key',
-    //   { expiresIn: '7d' },
-    // );
+      // создадим токен
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
+        {
+          expiresIn: '7d',
+        },
+      );
 
-    const token = jwt.sign(
-      { _id: user._id },
-      NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
-      { expiresIn: '7d' },
-    );
-    res.send({ token });
-  } catch (e) {
-    return next(e);
-  }
+      // вернём токен
+      return res.send({ token });
+    })
+    .catch(next);
 };
 
 const createUser = async (req, res, next) => {
