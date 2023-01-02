@@ -59,12 +59,12 @@ const login = (req, res, next) => {
           expiresIn: '7d',
         },
       );
-      res.cookie('jwt', token, {
-        maxAge: 3600000,
-        httpOnly: true,
-        secure: true,
-        sameSite: 'None',
-      });
+      // res.cookie('jwt', token, {
+      //   maxAge: 3600000,
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: 'None',
+      // });
       // вернём токен
       res.send({ token });
     })
@@ -110,22 +110,34 @@ const createUser = async (req, res, next) => {
   }
 };
 
-const getCurrentUser = async (req, res, next) => {
-  const userId = req.user._id;
-  // eslint-disable-next-line no-constant-condition
-  // if (!userId) {
-  //   next(new BadRequestError('Invalid id'));
-  // }
-  try {
-    const user = await User.findById(userId);
+// const getCurrentUser = async (req, res, next) => {
+//   const { _id } = req.user;
+// eslint-disable-next-line no-constant-condition
+// if (!userId) {
+//   next(new BadRequestError('Invalid id'));
+// }
+//   try {
+//     const user = await User.findById(_id);
+//     if (!user) {
+//       return next(new NotFoundError('User with this id not found'));
+//     }
+//     // return res.status(200).json(user);
+//     return res.status(200).send(user);
+//   } catch (e) {
+//     return next(e);
+//   }
+// };
+
+const getCurrentUser = (req, res, next) => {
+  const { _id } = req.user;
+  User.findById(_id).then((user) => {
+    // проверяем, есть ли пользователь с таким id
     if (!user) {
-      return next(new NotFoundError(`User with this ${userId} not found`));
+      return next(new NotFoundError('Пользователь не найден.'));
     }
-    // return res.status(200).json(user);
+    // возвращаем пользователя, если он есть
     return res.status(200).send(user);
-  } catch (e) {
-    return next(e);
-  }
+  }).catch(next);
 };
 
 const getUsers = async (req, res, next) => {
